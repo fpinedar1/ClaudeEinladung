@@ -1,0 +1,125 @@
+<title>Fiorella & Lukas – Save the Date</title>
+<link rel="stylesheet" href="style.css">
+
+<canvas id="ambient" aria-hidden="true"></canvas>
+
+<main class="card">
+  <svg class="sprig" viewBox="0 0 84 40" aria-hidden="true">
+    <line x1="42" y1="40" x2="42" y2="10" />
+    <line x1="42" y1="26" x2="20" y2="14" />
+    <line x1="42" y1="20" x2="64" y2="10" />
+    <line x1="42" y1="14" x2="30" y2="4" />
+    <line x1="42" y1="14" x2="54" y2="4" />
+    <circle class="bud" cx="20" cy="14" r="3" />
+    <circle class="bud" cx="64" cy="10" r="3" />
+    <circle class="bud" cx="30" cy="4" r="2.4" />
+    <circle class="bud" cx="54" cy="4" r="2.4" />
+    <circle class="bud" cx="42" cy="8" r="2.8" />
+  </svg>
+
+  <p class="eyebrow">Wir sagen Ja</p>
+
+  <h1 class="names">Fiorella <em>&amp;</em> Lukas</h1>
+
+  <div class="rule"><span></span><i></i><span></span></div>
+
+  <div class="details">
+    <p class="date">Anfang August 2027</p>
+    <p class="place">Grevenbroich · Deutschland</p>
+  </div>
+
+  <p class="message">
+    Wir möchten diesen besonderen Tag mit den Menschen feiern, die uns am
+    wichtigsten sind – und würden uns riesig freuen, Euch dabei zu haben.
+  </p>
+
+  <p class="hint">
+    Reserviert Euch schon jetzt eines der ersten August-Wochenenden 2027.
+    Die offizielle Einladung mit Datum, Uhrzeit und allen Details folgt
+    in Kürze.
+  </p>
+
+  <p class="signature">In Liebe, Fiorella &amp; Lukas</p>
+</main>
+
+<script>
+  (function () {
+    var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var canvas = document.getElementById("ambient");
+    var ctx = canvas.getContext("2d");
+    var w, h, particles;
+
+    function isDark() {
+      var attr = document.documentElement.getAttribute("data-theme");
+      if (attr === "dark") return true;
+      if (attr === "light") return false;
+      return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    }
+
+    function resize() {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    }
+
+    function makeParticles() {
+      var count = Math.round((w * h) / 34000);
+      particles = [];
+      for (var i = 0; i < count; i++) {
+        particles.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          r: 0.6 + Math.random() * 1.6,
+          speed: 0.08 + Math.random() * 0.22,
+          drift: (Math.random() - 0.5) * 0.15,
+          phase: Math.random() * Math.PI * 2
+        });
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+      var glow = isDark() ? "222, 197, 121" : "169, 130, 47";
+      for (var i = 0; i < particles.length; i++) {
+        var p = particles[i];
+        p.y -= p.speed;
+        p.x += p.drift + Math.sin(p.phase) * 0.05;
+        p.phase += 0.01;
+        if (p.y < -10) { p.y = h + 10; p.x = Math.random() * w; }
+        if (p.x < -10) p.x = w + 10;
+        if (p.x > w + 10) p.x = -10;
+        var alpha = 0.18 + 0.14 * Math.sin(p.phase * 2);
+        ctx.beginPath();
+        ctx.fillStyle = "rgba(" + glow + ", " + alpha.toFixed(2) + ")";
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      requestAnimationFrame(draw);
+    }
+
+    resize();
+    makeParticles();
+    window.addEventListener("resize", function () {
+      resize();
+      makeParticles();
+    });
+
+    if (!reduceMotion) {
+      requestAnimationFrame(draw);
+    } else {
+      draw();
+      draw = function () {};
+      var frame = function () {
+        ctx.clearRect(0, 0, w, h);
+        var glow = isDark() ? "222, 197, 121" : "169, 130, 47";
+        for (var i = 0; i < particles.length; i++) {
+          var p = particles[i];
+          ctx.beginPath();
+          ctx.fillStyle = "rgba(" + glow + ", 0.16)";
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      };
+      frame();
+    }
+  })();
+</script>
